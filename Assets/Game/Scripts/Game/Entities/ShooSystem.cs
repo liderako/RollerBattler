@@ -7,9 +7,9 @@ namespace Game.Entities
     {
         [SerializeField] private Transform spriteRight;
         [SerializeField] private float d;
-        private float stepP = 0.3f;
-        private float stepS = 0.5f;
-        private float stepSX = 0.1f;
+        [SerializeField] private float stepP = 0.3f;
+        [SerializeField] private float stepS = 0.5f;
+        [SerializeField] private float stepSX = 0.1f;
 
         private void Start()
         {
@@ -19,12 +19,12 @@ namespace Game.Entities
         {
             if (spriteRight.localScale.y < d)
             {
-                spriteRight.transform.position = Vector3.Lerp(spriteRight.transform.position,
-                    new Vector3(spriteRight.transform.position.x + stepP, spriteRight.transform.position.y,
-                        spriteRight.transform.position.z), 0.5f);
+                spriteRight.transform.localPosition = Vector3.Lerp(spriteRight.transform.localPosition,
+                    new Vector3(spriteRight.transform.localPosition.x + stepP, spriteRight.transform.localPosition.y,
+                        spriteRight.transform.localPosition.z), 1f);
                 spriteRight.transform.localScale = Vector3.Lerp(spriteRight.transform.localScale,
                     new Vector3(spriteRight.transform.localScale.x + stepSX, spriteRight.transform.localScale.y + stepS,
-                        spriteRight.transform.localScale.z), 0.5f);
+                        spriteRight.transform.localScale.z), 1f);
             }
         }
     }
