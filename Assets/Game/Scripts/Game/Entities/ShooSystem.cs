@@ -4,25 +4,43 @@ using UnityEngine;
 
 namespace Game.Entities
 {
+    [Serializable]
+    public struct RaySettings
+    {
+        public float yStart;
+        public float step;
+        public int amountRay;
+        public float rangeVision;
+        public LayerMask layerMask;
+        public bool isLeft;
+    }
+
+    [Serializable]
+    public struct RenderSettings
+    {
+        public float maxScale;
+        public float stepP;
+        public float stepS;
+        public float stepSX;
+    }
+    
     public class ShooSystem : MonoBehaviour
     {
-        [SerializeField] private Transform spriteRight;
-        [SerializeField] private float maxScale;
-        [SerializeField] private float stepP = 0.3f;
-        [SerializeField] private float stepS = 0.5f;
-        [SerializeField] private float stepSX = 0.1f;
-
-        [SerializeField] private List<Transform> enemies;
-        
+        [SerializeField] private RaySettings raySettings;
+        [SerializeField] private RenderSettings renderSettings;
         private float originScale;
+        private Vector3 dirTriangle;
 
+        [SerializeField] private Transform owner;
+        private SpriteRenderer spriteRenderer;
+        private Color originColor;
         private void Awake()
         {
-            originScale = maxScale;
-        }
-
-        private void Start()
-        {
+            spriteRenderer = GetComponent<SpriteRenderer>();
+            originScale = transform.localScale.y;
+            originColor = spriteRenderer.color;
+            spriteRenderer.color = new Color(r: spriteRenderer.color.r, g: spriteRenderer.color.g,
+                b: spriteRenderer.color.b, a: 0);
         }
 
         private void Update()
@@ -37,57 +55,88 @@ namespace Game.Entities
             }
         }
 
-        [SerializeField] private Transform owner;
-        [SerializeField] private float yStart;
-        [SerializeField] private float step = 5.0f;
-        [SerializeField] private int amountRay = 5;
-        [SerializeField] private float rangeVision = 30;
         private bool CheckEnemyInRange()
         {
-            float yStartTMP = yStart;
+            float yStartTMP = raySettings.yStart;
             RaycastHit hit;
 
-            for (int i = 0; i < amountRay; i++)
+            for (int i = 0; i < raySettings.amountRay; i++)
             {
-                Vector3 dir = Quaternion.Euler(0, yStartTMP, 0) * (owner.right * rangeVision);
-                Debug.DrawRay(owner.position, dir, Color.yellow);
-                if (Physics.Raycast(owner.position, dir, out hit, rangeVision))
+                if (raySettings.isLeft)
                 {
-                    // if (hit.collider.TryGetComponent())
+                    dirTriangle = -owner.right;
+                }
+                else
+                {
+                    dirTriangle = owner.right;
+                }
+                Vector3 dir = Quaternion.Euler(0, yStartTMP, 0) * dirTriangle * raySettings.rangeVision;
+                Debug.DrawRay(owner.position, dir, Color.yellow);
+                if (Physics.Raycast(owner.position, dir, out hit, raySettings.rangeVision, raySettings.layerMask))
+                {
                     Debug.DrawRay(owner.position, dir, Color.black);
                     return true;
                 }
-                yStartTMP += step;
+                yStartTMP += raySettings.step;
             }
             return false;
         }
 
         private void RenderVision(bool state)
         {
-            if (state && spriteRight.localScale.y < maxScale)
+            if (state && transform.localScale.y < renderSettings.maxScale)
             {
-                ChangeLocalPosition(stepP);
-                ChangeScale(stepSX, stepS);
+                if (transform.localScale.y < renderSettings.maxScale)
+                {
+                    ChangeLocalPosition(renderSettings.stepP);
+                    ChangeScale(renderSettings.stepSX, renderSettings.stepS);   
+                }
+
+                if (spriteRenderer.color.a < originColor.a)
+                {
+                    ChangeAlphaCanal(true);
+                }
             }
-            else if (!state && spriteRight.localScale.y > originScale)
+            else if (!state && transform.localScale.y > originScale)
             {
-                ChangeLocalPosition(-stepP);
-                ChangeScale(-stepSX, -stepS);
+                if (transform.localScale.y > originScale)
+                {
+                    ChangeLocalPosition(-renderSettings.stepP);
+                    ChangeScale(-renderSettings.stepSX, -renderSettings.stepS);   
+                }
+                if (spriteRenderer.color.a > 0)
+                {
+                    ChangeAlphaCanal(false);
+                }
+            }
+        }
+
+        private void ChangeAlphaCanal(bool state)
+        {
+            if (state)
+            {
+                spriteRenderer.color = new Color(r: spriteRenderer.color.r, g: spriteRenderer.color.g,
+                    b: spriteRenderer.color.b, a: Mathf.Lerp(spriteRenderer.color.a, originColor.a, 0.3f));
+            }
+            else
+            {
+                spriteRenderer.color = new Color(r: spriteRenderer.color.r, g: spriteRenderer.color.g,
+                    b: spriteRenderer.color.b, a: Mathf.Lerp(spriteRenderer.color.a, 0, 0.5f));   
             }
         }
 
         private void ChangeLocalPosition(float tmpX)
         {
-            spriteRight.transform.localPosition = Vector3.Lerp(spriteRight.transform.localPosition,
-                new Vector3(spriteRight.transform.localPosition.x + tmpX, spriteRight.transform.localPosition.y,
-                    spriteRight.transform.localPosition.z), 1f);
+            transform.localPosition = Vector3.Lerp(transform.localPosition,
+                new Vector3(transform.localPosition.x + tmpX, transform.localPosition.y,
+                    transform.localPosition.z), 0.1f);
         }
 
         private void ChangeScale(float tmpX, float tmpY)
         {
-            spriteRight.transform.localScale = Vector3.Lerp(spriteRight.transform.localScale,
-                new Vector3(spriteRight.transform.localScale.x + tmpX, spriteRight.transform.localScale.y + tmpY,
-                    spriteRight.transform.localScale.z), 1f);
+            transform.localScale = Vector3.Lerp(transform.localScale,
+                new Vector3(transform.localScale.x + tmpX, transform.localScale.y + tmpY,
+                    transform.localScale.z), 0.1f);
         }
     }
 }
