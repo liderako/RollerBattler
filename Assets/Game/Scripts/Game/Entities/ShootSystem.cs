@@ -24,10 +24,11 @@ namespace Game.Entities
         public float stepSX;
     }
     
-    public class ShooSystem : MonoBehaviour
+    public class ShootSystem : MonoBehaviour
     {
         [SerializeField] private RaySettings raySettings;
         [SerializeField] private RenderSettings renderSettings;
+        [SerializeField] private Weapon weapon;
         private float originScale;
         private Vector3 dirTriangle;
 
@@ -48,17 +49,20 @@ namespace Game.Entities
             if (CheckEnemyInRange())
             {
                 RenderVision(true);
+                if (IsReadyToShot())
+                {
+                    Shot(); 
+                }
             }
             else
             {
                 RenderVision(false);   
             }
         }
-
+        private RaycastHit hit;
         private bool CheckEnemyInRange()
         {
             float yStartTMP = raySettings.yStart;
-            RaycastHit hit;
 
             for (int i = 0; i < raySettings.amountRay; i++)
             {
@@ -82,6 +86,37 @@ namespace Game.Entities
             return false;
         }
 
+        private void Shot()
+        {
+            if (weapon == null)
+            {
+                return;   
+            }
+            Vector3 d;
+            if (raySettings.isLeft)
+            {
+                d = -owner.right;
+            }
+            else
+            {
+                d = owner.right;
+            }
+            // weapon.Shot((hit.collider.transform.position - weapon.transform.position).normalized);
+            weapon.Shot(d);
+        }
+
+        private bool IsReadyToShot()
+        {
+            if (weapon != null && weapon.IsReady) 
+            {
+                if (transform.localScale.y >= renderSettings.maxScale - (renderSettings.maxScale * 0.15))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+        
         private void RenderVision(bool state)
         {
             if (state && transform.localScale.y < renderSettings.maxScale)
@@ -91,7 +126,6 @@ namespace Game.Entities
                     ChangeLocalPosition(renderSettings.stepP);
                     ChangeScale(renderSettings.stepSX, renderSettings.stepS);   
                 }
-
                 if (spriteRenderer.color.a < originColor.a)
                 {
                     ChangeAlphaCanal(true);
