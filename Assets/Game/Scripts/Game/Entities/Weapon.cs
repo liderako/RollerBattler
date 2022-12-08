@@ -31,12 +31,8 @@ namespace Game.Entities
             GameObject bullet = Instantiate(prefabBullet, parent.parent);
             bullet.transform.position = transform.position + direction;
             bullet.SetActive(true);
-
             bullet.transform.forward = direction.normalized;
             bullet.transform.Rotate(Vector3.right, -90);
-            // bullet.transform.R
-            // float angle = 90 - Mathf.Atan2(direction.z, direction.x) * Mathf.Rad2Deg;
-            // bullet.transform.localRotation = Quaternion.Euler(bullet.transform.localEulerAngles.x, bullet.transform.localEulerAngles.y, 90);
             bullet.layer = gameObject.layer;
             bullet.GetComponent<Rigidbody>().AddForce(direction * settings.forceShot, ForceMode.Impulse);
             Destroy(bullet, settings.duration);

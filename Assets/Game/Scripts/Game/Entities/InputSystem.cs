@@ -12,10 +12,6 @@ namespace Game.Entities
         {
             if (OnDirectionInputActionPlayer != null)
             {
-                // if (joystick.Horizontal == 0 && joystick.Vertical == 0)
-                // {
-                //     return;
-                // }
                 OnDirectionInputActionPlayer(joystick.Horizontal, joystick.Vertical);
             }
         }
