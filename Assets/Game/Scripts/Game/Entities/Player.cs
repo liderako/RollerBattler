@@ -22,16 +22,6 @@ namespace Game.Entities
         {
             direction.x = x;
             direction.z = y;
-            if (x == 0 && y == 0)
-            {
-                return;
-            }
-            Rotate();
-        }
-
-        private void Rotate()
-        {
-            hip.rotation = Quaternion.Euler(0, 90 - Mathf.Atan2(direction.z, direction.x) * Mathf.Rad2Deg, 0);
         }
     }
 }
