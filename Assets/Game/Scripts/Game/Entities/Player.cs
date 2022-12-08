@@ -1,24 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
-namespace Game.Scripts.Game
+namespace Game.Entities
 {
-    public class Player : MonoBehaviour
+    public class Player : Actor
     {
-        [SerializeField] private float speed;
-        private Vector3 direction;
-        [SerializeField] private List<Rigidbody> rigidbody;
+        [SerializeField] private Transform hip; 
         private InputSystem inputSystem;
-        private int amountBones;
-        // private float deltaSpeed;
-
-        private void Awake()
-        {
-            direction = new Vector3();
-            amountBones = rigidbody.Count;
-            // deltaSpeed = speed * Time.fixedDeltaTime;
-        }
 
         private void Start()
         {
@@ -31,21 +18,7 @@ namespace Game.Scripts.Game
             inputSystem.OnDirectionInputActionPlayer -= UpdateDir;
         }
 
-        private void FixedUpdate()
-        {
-            Move();
-        }
-
-        private void Move()
-        {
-            for (int i = 0; i < amountBones; i++)
-            {
-                rigidbody[i].AddForce(direction * speed * Time.fixedDeltaTime, ForceMode.Force);
-            }
-        }
-
-        [SerializeField] private Transform p; 
-        private void UpdateDir(float x, float  y)
+        protected void UpdateDir(float x, float  y)
         {
             direction.x = x;
             direction.z = y;
@@ -53,8 +26,12 @@ namespace Game.Scripts.Game
             {
                 return;
             }
-            float angle = 90 - Mathf.Atan2(direction.z, direction.x) * Mathf.Rad2Deg;
-            p.rotation = Quaternion.Euler(0, angle, 0);
+            Rotate();
+        }
+
+        private void Rotate()
+        {
+            hip.rotation = Quaternion.Euler(0, 90 - Mathf.Atan2(direction.z, direction.x) * Mathf.Rad2Deg, 0);
         }
     }
 }
