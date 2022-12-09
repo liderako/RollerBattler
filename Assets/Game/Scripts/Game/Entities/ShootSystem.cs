@@ -18,6 +18,8 @@ namespace Game.Entities
     [Serializable]
     public struct RenderSettings
     {
+        public float sub;
+        public float add;
         public float maxScale;
         public float stepP;
         public float stepS;
@@ -35,6 +37,8 @@ namespace Game.Entities
         [SerializeField] private Transform owner;
         private SpriteRenderer spriteRenderer;
         private Color originColor;
+        private RaycastHit hit;
+        
         private void Awake()
         {
             spriteRenderer = GetComponent<SpriteRenderer>();
@@ -59,7 +63,6 @@ namespace Game.Entities
                 RenderVision(false);   
             }
         }
-        private RaycastHit hit;
         private bool CheckEnemyInRange()
         {
             float yStartTMP = raySettings.yStart;
@@ -92,24 +95,22 @@ namespace Game.Entities
             {
                 return;   
             }
-            Vector3 d;
             if (raySettings.isLeft)
             {
-                d = -owner.right;
+                weapon.Shot(-owner.right);
             }
             else
             {
-                d = owner.right;
+                weapon.Shot(owner.right);
             }
-            // weapon.Shot((hit.collider.transform.position - weapon.transform.position).normalized);
-            weapon.Shot(d);
         }
 
         private bool IsReadyToShot()
         {
             if (weapon != null && weapon.IsReady) 
             {
-                if (transform.localScale.y >= renderSettings.maxScale - (renderSettings.maxScale * 0.15))
+                // if (transform.localScale.y >= renderSettings.maxScale - (renderSettings.maxScale * 0.15))
+                if (spriteRenderer.color.a >= originColor.a - originColor.a * 0.15)
                 {
                     return true;
                 }
@@ -119,58 +120,58 @@ namespace Game.Entities
         
         private void RenderVision(bool state)
         {
-            if (state && transform.localScale.y < renderSettings.maxScale)
+            if (state) //&& transform.localScale.y < renderSettings.maxScale)
             {
-                if (transform.localScale.y < renderSettings.maxScale)
-                {
-                    ChangeLocalPosition(renderSettings.stepP);
-                    ChangeScale(renderSettings.stepSX, renderSettings.stepS);   
-                }
+                // if (transform.localScale.y < renderSettings.maxScale)
+                // {
+                //     ChangeLocalPosition(renderSettings.stepP);
+                //     ChangeScale(renderSettings.stepSX, renderSettings.stepS);   
+                // }
                 if (spriteRenderer.color.a < originColor.a)
                 {
                     ChangeAlphaCanal(true);
                 }
             }
-            else if (!state && transform.localScale.y > originScale)
+            else if (!state)//&& transform.localScale.y > originScale)
             {
-                if (transform.localScale.y > originScale)
-                {
-                    ChangeLocalPosition(-renderSettings.stepP);
-                    ChangeScale(-renderSettings.stepSX, -renderSettings.stepS);   
-                }
+                // if (transform.localScale.y > originScale)
+                // {
+                //     ChangeLocalPosition(-renderSettings.stepP);
+                //     ChangeScale(-renderSettings.stepSX, -renderSettings.stepS);   
+                // }
                 if (spriteRenderer.color.a > 0)
                 {
                     ChangeAlphaCanal(false);
                 }
             }
         }
-
+        
         private void ChangeAlphaCanal(bool state)
         {
             if (state)
             {
                 spriteRenderer.color = new Color(r: spriteRenderer.color.r, g: spriteRenderer.color.g,
-                    b: spriteRenderer.color.b, a: Mathf.Lerp(spriteRenderer.color.a, originColor.a, 0.3f));
+                    b: spriteRenderer.color.b, a: Mathf.Lerp(spriteRenderer.color.a, originColor.a, renderSettings.sub * Time.deltaTime));
             }
             else
             {
                 spriteRenderer.color = new Color(r: spriteRenderer.color.r, g: spriteRenderer.color.g,
-                    b: spriteRenderer.color.b, a: Mathf.Lerp(spriteRenderer.color.a, 0, 0.5f));   
+                    b: spriteRenderer.color.b, a: Mathf.Lerp(spriteRenderer.color.a, 0, renderSettings.sub * Time.deltaTime));   
             }
         }
 
-        private void ChangeLocalPosition(float tmpX)
-        {
-            transform.localPosition = Vector3.Lerp(transform.localPosition,
-                new Vector3(transform.localPosition.x + tmpX, transform.localPosition.y,
-                    transform.localPosition.z), 0.1f);
-        }
-
-        private void ChangeScale(float tmpX, float tmpY)
-        {
-            transform.localScale = Vector3.Lerp(transform.localScale,
-                new Vector3(transform.localScale.x + tmpX, transform.localScale.y + tmpY,
-                    transform.localScale.z), 0.1f);
-        }
+        // private void ChangeLocalPosition(float tmpX)
+        // {
+        //     transform.localPosition = Vector3.Lerp(transform.localPosition,
+        //         new Vector3(transform.localPosition.x + tmpX, transform.localPosition.y,
+        //             transform.localPosition.z), 0.1f);
+        // }
+        //
+        // private void ChangeScale(float tmpX, float tmpY)
+        // {
+        //     transform.localScale = Vector3.Lerp(transform.localScale,
+        //         new Vector3(transform.localScale.x + tmpX, transform.localScale.y + tmpY,
+        //             transform.localScale.z), 0.1f);
+        // }
     }
 }

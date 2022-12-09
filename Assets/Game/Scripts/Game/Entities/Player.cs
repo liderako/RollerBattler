@@ -4,7 +4,6 @@ namespace Game.Entities
 {
     public class Player : Actor
     {
-        [SerializeField] private Transform hip; 
         private InputSystem inputSystem;
 
         private void Start()
